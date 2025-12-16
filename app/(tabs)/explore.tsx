@@ -1,110 +1,205 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// 여행지 추천 페이지 컴포넌트
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
+import React, { useRef } from 'react';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+// 네비게이션을 위한 Stack 파라미터 타입 정의
+type RootStackParamList = {
+  see: { category: string, items: { name: string, image: any }[] };
+};
+type NavigationProp = StackNavigationProp<RootStackParamList, 'see'>;
+
+// 카테고리 목록 (이모지 + 이름)
+const categories = [
+  { icon: '🍽️', name: 'Food' },
+  { icon: '🛍️', name: 'Shopping' },
+  { icon: '🏯', name: 'Culture' },
+  { icon: '🍸', name: 'Night' },
+  { icon: '🎯', name: 'Recommend' },
+];
+
+// 카테고리별 여행지 샘플 데이터 (이름과 이미지)
+const sampleData = {
+  'Food': [
+    { name: 'Tteokbokki', image: require('../../assets/images/tteokbokki.jpg') },
+    { name: 'Vegetarian Restaurant', image: require('../../assets/images/plant.jpg') },
+    { name: 'Korean Barbeque', image: require('../../assets/images/bbq.jpg') },
+    { name: 'Bulgogi', image: require('../../assets/images/bulgogi.jpg') }
+  ],
+  'Shopping': [
+    { name: 'Myeongdong', image: require('../../assets/images/myeongdong.jpg') },
+    { name: 'Hongdae', image: require('../../assets/images/hongdae.jpg') },
+    { name: 'Star Field', image: require('../../assets/images/starfield.jpg') },
+    { name: 'Dongdaemun', image: require('../../assets/images/dongdaemun.jpg') }
+  ],
+  'Culture': [
+    { name: 'Gyeongbokgung Palace', image: require('../../assets/images/village.jpg') },
+    { name: 'Korean Folk Village', image: require('../../assets/images/myeongdong.jpg') },
+    { name: 'taekwondo', image: require('../../assets/images/taekwondo.jpg') },
+    { name: 'Daehakro', image: require('../../assets/images/daehakro.jpg') }
+  ],
+  'Night': [
+    { name: 'N Seoul Tower', image: require('../../assets/images/tower.jpg') },
+    { name: 'Yeongwol', image: require('../../assets/images/yeongwol.jpg') },
+    { name: 'Buyeo', image: require('../../assets/images/buyeo.jpg') },
+    { name: 'Daejeon', image: require('../../assets/images/daejeon.jpg') }
+  ],
+  'Recommend': [
+    { name: 'Lotte World', image: require('../../assets/images/lotte.jpg') },
+    { name: 'JeJu', image: require('../../assets/images/jeju.jpg') },
+    { name: 'Busan', image: require('../../assets/images/busan.jpg') },
+    { name: 'Yeosu', image: require('../../assets/images/yeosu.jpg') }
+  ],
+};
 
 export default function TabTwoScreen() {
+  // 각 섹션의 참조 (스크롤 이동용)
+  const foodRef = useRef<View>(null);
+  const shoppingRef = useRef<View>(null);
+  const cultureRef = useRef<View>(null);
+  const nightRef = useRef<View>(null);
+  const recommendRef = useRef<View>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const navigation = useNavigation<NavigationProp>();
+
+  // 섹션 이름과 ref를 매핑
+  const sectionRefs = {
+    'Food': foodRef,
+    'Shopping': shoppingRef,
+    'Culture': cultureRef,
+    'Night': nightRef,
+    'Recommend': recommendRef,
+  };
+
+  const insets = useSafeAreaInsets(); // 안전영역(insets)을 고려한 여백 설정
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
+      {/* 전체 페이지 스크롤 뷰 */}
+      <ScrollView
+        style={styles.container}
+        ref={scrollRef}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 10 }} // 하단 여백 추가 (탭바 대비)
+      >
+        {/* 카테고리 버튼 리스트 */}
+        <View style={styles.categoryContainer}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat.name}
+              style={styles.categoryButton}
+              onPress={() => {
+                // 선택한 카테고리 섹션으로 스크롤 이동
+                const ref = sectionRefs[cat.name as keyof typeof sectionRefs];
+                if (ref?.current && scrollRef.current) {
+                  ref.current.measure((x, y, width, height, pageX, pageY) => {
+                    scrollRef.current?.scrollTo({ y: pageY, animated: true });
+                  });
+                }
+              }}
+            >
+              <Text style={styles.categoryText}>{cat.icon}</Text>
+              <Text style={styles.categoryLabel}>{cat.name}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* 각 카테고리 섹션별 여행지 미리보기 리스트 */}
+        {Object.entries(sampleData).map(([sectionTitle, items]) => (
+          <View
+            key={sectionTitle}
+            style={styles.section}
+            ref={sectionRefs[sectionTitle as keyof typeof sectionRefs]}
+          >
+            {/* 섹션 상단: 제목 + "See All" 버튼 */}
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>{sectionTitle}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('see', { category: sectionTitle, items })}>
+                <Text style={styles.seeAll}>See All</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* 섹션 내부: 가로 스크롤 카드 목록 */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              {items.map((item, index) => (
+                <View key={index} style={styles.card}>
+                  <Image source={item.image} style={styles.cardImage} />
+                  <Text style={styles.cardText}>{item.name}</Text>
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        ))}
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
+// 스타일 정의
 const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
+  container: {
+    padding: 16,
+    backgroundColor: '#fff',
   },
-  titleContainer: {
+  categoryContainer: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    marginBottom: 24,
+    justifyContent: 'space-between',
+  },
+  categoryButton: {
+    width: '30%',
+    aspectRatio: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    borderRadius: 16,
+    backgroundColor: '#f2f2f2',
+  },
+  categoryText: {
+    fontSize: 28,
+  },
+  categoryLabel: {
+    marginTop: 4,
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  seeAll: {
+    fontSize: 14,
+    color: '#007aff',
+  },
+  card: {
+    width: 120,
+    height: 100,
+    marginRight: 12,
+    backgroundColor: '#eee',
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardImage: {
+    width: '100%',
+    height: 70,
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
+  },
+  cardText: {
+    padding: 4,
+    textAlign: 'center',
+    fontSize: 12,
   },
 });

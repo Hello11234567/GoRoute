@@ -1,75 +1,53 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+// HomeScreen 컴포넌트: 메인화면에서 네이버 지도를 표시하는 기능을 담당
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { View } from 'react-native'; // 기본 View 컴포넌트
+import { SafeAreaView } from 'react-native-safe-area-context'; // 노치 및 안전 영역을 고려한 레이아웃을 위한 컴포넌트
+import { WebView } from 'react-native-webview'; // HTML/웹 콘텐츠를 렌더링하기 위한 WebView
 
 export default function HomeScreen() {
+  // WebView에서 렌더링할 HTML 콘텐츠 (네이버 지도 포함)
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          /* 전체 화면을 채우도록 설정 */
+          html, body, #map {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+          }
+        </style>
+        <!-- 네이버 지도 API 로드 (클라이언트 ID는 ncpClientId에 입력) -->
+        <script src="https://openapi.map.naver.com/openapi/v3/maps.js?ncpClientId=mec6rct1yl"></script>
+      </head>
+      <body>
+        <!-- 지도를 표시할 div 요소 -->
+        <div id="map"></div>
+        <script>
+          // 네이버 지도 초기화
+          var map = new naver.maps.Map('map', {
+            center: new naver.maps.LatLng(37.5665, 126.9780), // 초기 중심 좌표 (서울)
+            zoom: 10 // 초기 줌 레벨
+          });
+        </script>
+      </body>
+    </html>
+  `;
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    // 화면 전체를 안전 영역에 맞게 감싸는 뷰
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
+        <WebView
+          originWhitelist={['*']} // 외부 콘텐츠 허용
+          source={{ html: htmlContent }} // WebView에 HTML 콘텐츠 전달
+          javaScriptEnabled={true} // JavaScript 실행 허용
+          domStorageEnabled={true} // DOM Storage 허용
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      </View>
+    </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});
